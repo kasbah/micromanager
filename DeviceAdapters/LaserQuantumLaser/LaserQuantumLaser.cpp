@@ -64,7 +64,7 @@ LaserQuantumLaser::LaserQuantumLaser():
 	initialized_(false),
 	busy_(false),
 	controlmode_(true),
-	enabledCurrentControl_(true),
+	enabledCurrentControl_(false),
 	power_(0.00),
 	current_(0),
 	startupstatus_(true),
@@ -108,6 +108,7 @@ void LaserQuantumLaser::GetName(char* Name) const
 
 int LaserQuantumLaser::Initialize()
 {
+
 	// Get maximum power
 	char charbuff[MM::MaxStrLength];
 	int ret = GetProperty("Maximum power (mW)", charbuff);
@@ -279,7 +280,10 @@ bool LaserQuantumLaser::string_contains(std::string s1, std::string s2){
 	}
 }
 
-int LaserQuantumLaser::supportsCurrentControl(bool* supportsCurrent){  
+int LaserQuantumLaser::supportsCurrentControl(bool* supportsCurrent){
+	*supportsCurrent = false;
+	return DEVICE_OK;
+	
 	std::ostringstream command, command2, command3;
 	std::string answer, answer2;
 
@@ -350,7 +354,7 @@ int LaserQuantumLaser::getVersion(std::string* version){
 		return ret;
 
 	// check sanity of answer
-	if(string_contains(answer,"SMD12")){
+	if(string_contains(answer,"SMD")){
 		*version = answer;
 		return DEVICE_OK;
 	} else if(string_contains(answer,STR_ERROR)){	
@@ -368,7 +372,7 @@ int LaserQuantumLaser::getStatus(bool* status){
 	std::ostringstream command;
 	std::string answer;
 
-	command << "STATUS?";
+	command << "STAT?";
 	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
 	if (ret != DEVICE_OK) 
 		return ret;
