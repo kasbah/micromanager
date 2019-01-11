@@ -108,7 +108,7 @@ void LaserQuantumLaser::GetName(char* Name) const
 
 int LaserQuantumLaser::Initialize()
 {
-
+	LogMessage("welcome");
 	// Get maximum power
 	char charbuff[MM::MaxStrLength];
 	int ret = GetProperty("Maximum power (mW)", charbuff);
@@ -147,8 +147,8 @@ int LaserQuantumLaser::Initialize()
 
 	// Enable current control
 	ret = supportsCurrentControl(&enabledCurrentControl_);
-	if (DEVICE_OK != ret)
-		return ret;
+	//if (DEVICE_OK != ret)
+	//	return ret;
 
 	if(enabledCurrentControl_){ // if the laser supports current control
 		CreateProperty("Current control", ENABLED, MM::String, true);
@@ -190,7 +190,7 @@ int LaserQuantumLaser::Initialize()
 		if (DEVICE_OK != ret)
 			return ret;
 	}
-
+	LogMessage("we are here");
 	// Power
 	getPower(&power_);
 
@@ -242,7 +242,7 @@ int LaserQuantumLaser::Initialize()
 	if (DEVICE_OK != ret)
 		return ret;
 
-
+	LogMessage("heloooooooooooooo");
 	initialized_ = true;
 	return DEVICE_OK;
 }
@@ -343,13 +343,15 @@ int LaserQuantumLaser::supportsCurrentControl(bool* supportsCurrent){
 int LaserQuantumLaser::getVersion(std::string* version){
 	std::ostringstream command;
 	std::string answer;
+	std::string throw_away;
 
 	command << "VERSION?";
-	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
+	GetSerialAnswer(port_.c_str(), "\r\n", throw_away);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -373,11 +375,11 @@ int LaserQuantumLaser::getStatus(bool* status){
 	std::string answer;
 
 	command << "STAT?";
-	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -399,15 +401,17 @@ int LaserQuantumLaser::getStatus(bool* status){
 
 
 int LaserQuantumLaser::getControlMode(bool* mode){
+	*mode = true;
+	return DEVICE_OK;
 	std::ostringstream command;
 	std::string answer;
 
 	command << "CONTROL?";
-	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -432,11 +436,11 @@ int LaserQuantumLaser::getCurrent(double* current){
 	std::string answer;
 
 	command << "CURRENT?";
-	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -468,11 +472,11 @@ int LaserQuantumLaser::getPower(double* power){
 	std::string answer;
 
 	command << "POWER?";
-	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -500,11 +504,11 @@ int LaserQuantumLaser::getLaserTemperature(double* temperature){
 	std::string answer;
 
 	command << "LASTEMP?";
-	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -532,11 +536,11 @@ int LaserQuantumLaser::getPSUTemperature(double* temperature){
 	std::string answer;
 
 	command << "PSUTEMP?";
-	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -560,16 +564,17 @@ int LaserQuantumLaser::getPSUTemperature(double* temperature){
 }
 
 int LaserQuantumLaser::getTimers(double* psutime, double* laserenabletime, double* laseroperationtime){
+	return DEVICE_OK;
 	std::ostringstream command;
 	std::string answer, answer1, answer2, answer3;
 
 	command << "TIMERS?";
-	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+	int ret = SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 	if (ret != DEVICE_OK) 
 		return ret;
 
 	// PSU
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -596,7 +601,7 @@ int LaserQuantumLaser::getTimers(double* psutime, double* laserenabletime, doubl
 	}
 
 	// Laser enabled
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer1);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer1);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -619,7 +624,7 @@ int LaserQuantumLaser::getTimers(double* psutime, double* laserenabletime, doubl
 	}
 
 	// Operation time
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer2);
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer2);
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -641,7 +646,7 @@ int LaserQuantumLaser::getTimers(double* psutime, double* laserenabletime, doubl
 		return ERR_UNEXPECTED_ANSWER;
 	}
 
-	ret = GetSerialAnswer(port_.c_str(), "\r", answer3); // empty line
+	ret = GetSerialAnswer(port_.c_str(), "\r\n", answer3); // empty line
 	if (ret != DEVICE_OK) 
 		return ret;
 
@@ -657,11 +662,11 @@ int LaserQuantumLaser::setLaserOnOff(bool b){
 
 	if(b){
 		command << "ON";
-		int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+		int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 		if (ret != DEVICE_OK) 
 			return ret;
 
-		ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+		ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 		if (ret != DEVICE_OK) 
 			return ret;
 
@@ -675,12 +680,12 @@ int LaserQuantumLaser::setLaserOnOff(bool b){
 	} else {
 
 		command << "OFF";
-		int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r");
+		int ret =SendSerialCommand(port_.c_str(), command.str().c_str(), "\r\n");
 		if (ret != DEVICE_OK) 
 			return ret;
 
 
-		ret = GetSerialAnswer(port_.c_str(), "\r", answer);
+		ret = GetSerialAnswer(port_.c_str(), "\r\n", answer);
 		if (ret != DEVICE_OK) 
 			return ret;
 
